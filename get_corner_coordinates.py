@@ -15,21 +15,16 @@ def mouse_callback(event, x, y, flags, params):
     if event == cv2.EVENT_LBUTTONUP:
         # Draw a circle at the location of the mouse click
         cv2.circle(frame, (x, y), 10, (0, 0, 255), -1)
-        # Add the coordinates of the circle to the list of circles
         corners.append((x, y))
-        # Display the image to the user
         cv2.imshow('Chessboard', frame)
 
 def get_corner_coordinates(cap):
-    # Read the first frame
     ret, frame = cap.read()
+
     original_frame = frame.copy()
     corners = []
     cv2.namedWindow('Chessboard')
     cv2.setMouseCallback('Chessboard', mouse_callback, (frame, corners))
-    # cv2.startWindowThread()
-
-    # Display the image to the user
     cv2.imshow('Chessboard', frame)
     # Prompt the user to move the circles to the four corners of the chessboard
     print('Move the circles to the four corners of the chessboard and press any spacebar when done.')
@@ -68,6 +63,7 @@ def get_corner_coordinates(cap):
         right_bottom = corners[2]
     
     cv2.waitKey(1)
+    print("Corners are: ", left_top, right_top, right_bottom, left_bottom)
     return left_top, right_top, right_bottom, left_bottom
 
 
