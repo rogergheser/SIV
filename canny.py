@@ -1,8 +1,9 @@
 import cv2
 import numpy as np
 import math
-VIDEO_PATH = "/Users/amirgheser/SIV/project/test/video/IMG_0389.mov"
+# VIDEO_PATH = "/Users/amirgheser/SIV/project/test/video/IMG_0389.mov"
 # VIDEO_PATH = "/Users/amirgheser/SIV/project/test/video/video2.mp4"
+VIDEO_PATH = '/Users/amirgheser/SIV/project/test/video/rotated_board.mp4'
 
 cap = cv2.VideoCapture(VIDEO_PATH)
 

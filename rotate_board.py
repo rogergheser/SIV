@@ -11,6 +11,11 @@ import copy
 from get_corner_coordinates import get_corner_coordinates
 
 def transform_frame(coords, frame):
+    """
+    :param coords: topL, topR, botR, botL coordinates of the corners of the chessboard
+    :param frame: the frame of the video
+    :return: the transformed frame
+    """
     topL, topR, botR, botL = coords
     width = int(frame.shape[1])
     height = int(frame.shape[0])

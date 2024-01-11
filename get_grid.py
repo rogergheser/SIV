@@ -9,9 +9,9 @@ from rotate_board import transform_frame
 from canny import hough_image
 
 DEBUG_CORNERS = (0, 0), (0,0), (0, 0), (0,0)
-DEBUG = 0
+DEBUG = 1
 LATEST_GRID = None
-FRAME_SPEED = 1000
+FRAME_SPEED = 1
 
 def ver_dist(line1, line2):
     """
@@ -248,6 +248,7 @@ def get_grid_lines(image):
     h_lines = find_horizontal_lines(image)
     return v_lines, h_lines
 
+
 def get_average_grid(grids):
     """
     :param grids: list of grids
@@ -268,22 +269,23 @@ def get_average_grid(grids):
     return np.concatenate((v_lines, h_lines))
 
 if __name__ == '__main__':
-    video_path = '/Users/amirgheser/SIV/project/test/video/IMG_0389.mov'
+    # video_path = '/Users/amirgheser/SIV/project/test/video/IMG_0389.mov'
     # video_path = '/Users/amirgheser/SIV/project/test/video/video2.mp4'
-    # video_path = '/Users/amirgheser/SIV/project/test/video/rotated_board.mp4'
+    video_path = '/Users/amirgheser/SIV/project/test/video/rotated_board.mp4'
     DEBUG_CORNERS = (768, 723), (1147, 721), (1208, 942), (679, 946)
     cap = cv2.VideoCapture(video_path)
-    if DEBUG:
-        coords = DEBUG_CORNERS
-    else:
-        coords = get_corner_coordinates(cap)
+    # if DEBUG:
+    #     coords = DEBUG_CORNERS
+    # else:
+        # coords = get_corner_coordinates(cap)
+    coords = get_corner_coordinates(cap)
     v_avg_params = []
     h_avg_params = []
     new_fps = 3
     frame_count = 0
     grids = []
     frame_count = 0
-    while frame_count < 1000:
+    while frame_count < 100:
         ret, frame = cap.read()
         if ret:
             transformed_image = transform_frame(coords, frame)
@@ -318,7 +320,7 @@ if __name__ == '__main__':
 
     cap = cv2.VideoCapture(video_path)
     frame_count = 0
-    while frame_count < 1000:
+    while frame_count < 100:
         ret, frame = cap.read()
         if ret:
             transformed_image = transform_frame(coords, frame)
@@ -343,11 +345,17 @@ if __name__ == '__main__':
 
             # show both the transformed frame with the grid and the transformed frame with the average grid
             img = transformed_image.copy()
-            transformed_image = draw_lines(transformed_image, v_lines)
-            transformed_image = draw_lines(transformed_image, h_lines)
-            cv2.imshow('transformed', transformed_image)
+            if DEBUG:
+                transformed_image = draw_lines(transformed_image, v_lines1, color=(0, 0, 255))
+                transformed_image = draw_lines(transformed_image, v_lines2, color=(0, 255, 0))
+                transformed_image = draw_lines(transformed_image, h_lines1, color=(0, 0, 255))
+                transformed_image = draw_lines(transformed_image, h_lines2, color=(0, 255, 0))
+            else:
+                transformed_image = draw_lines(transformed_image, v_lines)
+                transformed_image = draw_lines(transformed_image, h_lines)
+            cv2.imshow('Grid', transformed_image)
             img = draw_lines(img, avg_grid)
-            cv2.imshow('avg_frame', img)
+            cv2.imshow('Avg_grid', img)
             cv2.waitKey(FRAME_SPEED)
             print("Frame: {}/{}".format(frame_count, cap.get(cv2.CAP_PROP_FRAME_COUNT)))
         else:
