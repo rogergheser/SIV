@@ -73,9 +73,7 @@ def find_horizontal_lines(transformed_image, find_missing=True):
                                   max_theta=(np.pi / 2) + theta_delta)
     hough_image = edges.copy()
     hough_image = cv2.cvtColor(hough_image, cv2.COLOR_GRAY2BGR)
-
     lines = filter_close_lines_hor(lines, interline_delta)
-
     if len(lines) != 9 and find_missing:
         print("Missing {} horizontal lines".format(9-len(lines)))
         lines = find_missing_hlines(lines, transformed_image)
@@ -91,7 +89,6 @@ def find_vertical_lines(transformed_image, find_missing=True):
     gray_image = cv2.cvtColor(transformed_image, cv2.COLOR_BGR2GRAY)
     gray_image = cv2.GaussianBlur(gray_image, (5, 5), 0)
     edges = cv2.Canny(gray_image, 0, 50, apertureSize=3, L2gradient=True)
-    edges = cv2.GaussianBlur(edges, (3,3), 0)
     lines_vertical_0 = cv2.HoughLines(edges, 1, np.pi/180, 250, min_theta=0, max_theta=vertical_theta_range)
     lines_vertical_180 = cv2.HoughLines(edges, 1, np.pi/180, 250, min_theta=np.pi-vertical_theta_range, max_theta=np.pi)
     
@@ -221,7 +218,7 @@ def get_grid_mixed(image):
         
     h_lines = find_horizontal_lines(image, False)
     missing_hlines = find_missing_hlines(h_lines, image)
-   
+    
     h_size = image.shape[0] // 8
     if len(h_lines) > 0:
         for h_line in h_lines[::-1]:
@@ -270,8 +267,8 @@ def get_average_grid(grids):
 
 if __name__ == '__main__':
     # video_path = '/Users/amirgheser/SIV/project/test/video/IMG_0389.mov'
-    # video_path = '/Users/amirgheser/SIV/project/test/video/video2.mp4'
-    video_path = '/Users/amirgheser/SIV/project/test/video/rotated_board.mp4'
+    video_path = '/Users/amirgheser/SIV/project/test/video/video2.mp4'
+    # video_path = '/Users/amirgheser/SIV/project/test/video/rotated_board.mp4'
     DEBUG_CORNERS = (768, 723), (1147, 721), (1208, 942), (679, 946)
     cap = cv2.VideoCapture(video_path)
     # if DEBUG:
@@ -285,7 +282,7 @@ if __name__ == '__main__':
     frame_count = 0
     grids = []
     frame_count = 0
-    while frame_count < 100:
+    while frame_count < 1000:
         ret, frame = cap.read()
         if ret:
             transformed_image = transform_frame(coords, frame)
@@ -320,7 +317,7 @@ if __name__ == '__main__':
 
     cap = cv2.VideoCapture(video_path)
     frame_count = 0
-    while frame_count < 100:
+    while frame_count < 1000:
         ret, frame = cap.read()
         if ret:
             transformed_image = transform_frame(coords, frame)

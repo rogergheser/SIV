@@ -15,6 +15,7 @@ from multiprocessing import Value
 GRID_AMT_AVG = 300
 CORNERS = (766, 724), (1144, 717), (1208, 944), (677, 944)
 DEBUG = 0
+
 def intersect_in(line1, line2):
     """
     :param line1: (rho1, theta1)
@@ -100,9 +101,12 @@ def show_video(avg_grids, video_path, coords, stop_process):
                 lattice_points = get_lattice_points(v_lines, h_lines)
                 print(lattice_points)
             v_lines, h_lines = grid[:9], grid[9:]
+
             frame = transform_frame(coords, frame)
+
             frame = draw_lines(frame, v_lines, color=(0, 0, 255))
             frame = draw_lines(frame, h_lines, color=(0, 0, 255))
+
             for point in lattice_points:
                 cv2.circle(frame, tuple(point.astype(int)), 7, (0, 255, 0), -1)
 
@@ -114,19 +118,18 @@ def show_video(avg_grids, video_path, coords, stop_process):
                     print(topL, botR)
                     cv2.imshow("square", square)
                     cv2.waitKey(1)
-
-
             cv2.imshow("frame", frame)
             print("Frame: {}/{}".format(frame_count, cap.get(cv2.CAP_PROP_FRAME_COUNT)))
         frame_count += 1
         if cv2.waitKey(delay) & 0xFF == ord('q'):
             stop_process.value = True
+            cv2.destroyAllWindows()
             break
     cap.release()
 
 if __name__ == '__main__':
-    VIDEO_PATH = "/Users/amirgheser/SIV/project/test/video/IMG_0389.mov"
-    # VIDEO_PATH = "/Users/amirgheser/SIV/project/test/video/video2.mp4"
+    # VIDEO_PATH = "/Users/amirgheser/SIV/project/test/video/IMG_0389.mov"
+    VIDEO_PATH = "/Users/amirgheser/SIV/project/test/video/video2.mp4"
     # VIDEO_PATH = "/Users/amirgheser/SIV/project/test/video/rotated_board.mp4"
     avg_grids = mp.Queue()
     

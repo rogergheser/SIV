@@ -1,9 +1,9 @@
 import cv2
 import numpy as np
 import math
-# VIDEO_PATH = "/Users/amirgheser/SIV/project/test/video/IMG_0389.mov"
+VIDEO_PATH = "/Users/amirgheser/SIV/project/test/video/IMG_0389.mov"
 # VIDEO_PATH = "/Users/amirgheser/SIV/project/test/video/video2.mp4"
-VIDEO_PATH = '/Users/amirgheser/SIV/project/test/video/rotated_board.mp4'
+# VIDEO_PATH = '/Users/amirgheser/SIV/project/test/video/rotated_board.mp4'
 
 cap = cv2.VideoCapture(VIDEO_PATH)
 
@@ -45,7 +45,7 @@ if __name__ == '__main__':
         if ret:
             height , width = frame.shape[:2]
             start_row, start_col = int(height * .65), int(width * .25)
-            frame = frame[start_row:height, start_col:int(width*0.8)]
+            # frame = frame[start_row:height, start_col:int(width*0.8)]
             original_frame = frame
             frame = cv2.filter2D(frame, -1, kernel=cv2.getGaussianKernel(10, 0))
             frame = cv2.convertScaleAbs(frame, alpha=2, beta=0)
@@ -57,7 +57,6 @@ if __name__ == '__main__':
 
             hough_image = edges.copy()
             lines = cv2.HoughLines(hough_image, 2, np.pi/180, 300, None, 0, 0)
-            hough_image = cv2.filter2D(hough_image, -1, kernel=cv2.getGaussianKernel(len(hough_image)//8, 0.1))
 
             if lines is not None:
                 for i in range(0, len(lines)):
