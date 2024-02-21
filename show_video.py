@@ -1,18 +1,14 @@
-## this is a test file for multiprocessing
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 import multiprocessing as mp
-import time
-import os
-import sys
 import math
 from get_corner_coordinates import get_corner_coordinates
 from rotate_board import transform_frame
-from get_grid import draw_lines, get_average_grid, get_grid
+from get_grid import draw_lines, get_average_grid
 from get_grid import get_grid_mixed
 from multiprocessing import Value
-GRID_AMT_AVG = 300
+GRID_AMT_AVG = 150
 CORNERS = (766, 724), (1144, 717), (1208, 944), (677, 944)
 DEBUG = 0
 
@@ -110,14 +106,14 @@ def show_video(avg_grids, video_path, coords, stop_process):
             for point in lattice_points:
                 cv2.circle(frame, tuple(point.astype(int)), 7, (0, 255, 0), -1)
 
-            for i in range(8):
-                for j in range(8):
-                    topL = lattice_points[i*9+j].astype(int)
-                    botR = lattice_points[i*9+j+10].astype(int)
-                    square = frame[topL[1]:botR[1], topL[0]:botR[0]]
-                    print(topL, botR)
-                    cv2.imshow("square", square)
-                    cv2.waitKey(1)
+            # for i in range(8):
+            #     for j in range(8):
+            #         topL = lattice_points[i*9+j].astype(int)
+            #         botR = lattice_points[i*9+j+10].astype(int)
+            #         square = frame[topL[1]:botR[1], topL[0]:botR[0]]
+            #         print(topL, botR)
+            #         cv2.imshow("square", square)
+            #         cv2.waitKey(1)
             cv2.imshow("frame", frame)
             print("Frame: {}/{}".format(frame_count, cap.get(cv2.CAP_PROP_FRAME_COUNT)))
         frame_count += 1
