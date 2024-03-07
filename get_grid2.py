@@ -6,10 +6,10 @@ import math
 from rotate_board import transform_frame
 from sklearn.cluster import k_means
 
-DEBUG = 0
+DEBUG = 1
 CORNERS = (1161, 710),(745, 711),(643, 953),(1240, 955)
 
-def filter_lines(lines, avg_dist):
+def filter_lines(lines, avg_dist, axis=(0, np.pi/2)):
     """
     Filters out lines that are too close to each other.
     """
@@ -17,11 +17,13 @@ def filter_lines(lines, avg_dist):
     clusters = []
     clusters.append([lines[0]])
     for i in range(1, len(lines)):
-        if abs(lines[i][0][0] - lines[i-1][0][0]) > avg_dist*0.6:
+        p1 = intersect_in(lines[i][0], axis)
+        p0 = intersect_in(lines[i-1][0], axis)
+        if abs(np.linalg.norm(p1-p0)) > avg_dist*.9:
             clusters.append([lines[i]])
         else:
-            clusters[-1].append(lines[i])    
-        
+            clusters[-1].append(lines[i])
+
     for cluster in clusters:
         if len(cluster) > 1:
             np.mean(cluster, axis=0)
@@ -64,8 +66,11 @@ def houghlines(frame):
     else:
         vlines = None
     
-    hlines = np.array(sorted(hlines, key=lambda x: x[0][0]))
-    vlines = np.array(sorted(vlines, key=lambda x: x[0][0]))
+    #### FIND A MORE SUITABLE CENTRAL V LINE
+
+    vlines = np.array(sorted(vlines, key=lambda x: intersect_in(x[0], (0, np.pi/2))[0]))
+    central_vline = vlines[len(vlines)//2][0]
+    hlines = np.array(sorted(hlines, key=lambda x: intersect_in(x[0], central_vline)[1]))
     ### find a way to filter lines
     h_intercepts = [intersect_in((rho, theta), (frame.shape[0], 0)).astype(int) for rho, theta in hlines[:, 0]]
     v_intercepts = [intersect_in((rho, theta), (frame.shape[1], np.pi/2)).astype(int) for rho, theta in vlines[:, 0]]
@@ -73,8 +78,10 @@ def houghlines(frame):
     avg_hrhos = np.median(np.diff(hlines[:, 0, 0]))
     avg_vrhos = np.median(np.diff(vlines[:, 0, 0]))
 
-    hlines = filter_lines(hlines, avg_hrhos)
-    vlines = filter_lines(vlines, avg_vrhos)
+    vlines = filter_lines(vlines, avg_vrhos, hlines[len(hlines)//2][0])
+    for vline in vlines:
+        hlines = filter_lines(hlines, avg_hrhos, vline[0])
+    
 
     hlines = np.concatenate(hlines, axis=0)  # flatten the list of arrays
     vlines = np.concatenate(vlines, axis=0)  # flatten the list of arrays
@@ -95,6 +102,10 @@ def houghlines(frame):
         cv2.line(frame, (x1, y1), (x2, y2), (0, 0, 255), 2)
         cv2.line(edges, (x1, y1), (x2, y2), (0, 0, 255), 2)
 
+    # draw central_vline on edges
+    x = int(central_vline[0])
+    cv2.line(edges, (x, 0), (x, frame.shape[0]), (0, 255, 0), 2)
+    cv2.line(frame, (x, 0), (x, frame.shape[0]), (0, 255, 0), 2)
     points = get_lattice_points(vlines, hlines)
     frame = draw_points(frame, points)
     edges = draw_points(edges, points)
