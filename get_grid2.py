@@ -89,28 +89,29 @@ def houghlines(frame):
     
     print(lines)
     edges = cv2.cvtColor(edges, cv2.COLOR_GRAY2BGR)
+    for line in lines:
+        draw_line(edges, line, (0, 0, 255), 2)
+        draw_line(frame, line, (0, 0, 255), 2)
+    draw_line(edges, central_vline, (0, 255, 0), 2)   
+    draw_line(frame, central_vline, (0, 255, 0), 2)
 
-    for rho, theta in lines:
-        a = np.cos(theta)
-        b = np.sin(theta)
-        x0 = a * rho
-        y0 = b * rho
-        x1 = int(x0 + 3000 * (-b))
-        y1 = int(y0 + 3000 * (a))
-        x2 = int(x0 - 3000 * (-b))
-        y2 = int(y0 - 3000 * (a))
-        cv2.line(frame, (x1, y1), (x2, y2), (0, 0, 255), 2)
-        cv2.line(edges, (x1, y1), (x2, y2), (0, 0, 255), 2)
-
-    # draw central_vline on edges
-    x = int(central_vline[0])
-    cv2.line(edges, (x, 0), (x, frame.shape[0]), (0, 255, 0), 2)
-    cv2.line(frame, (x, 0), (x, frame.shape[0]), (0, 255, 0), 2)
     points = get_lattice_points(vlines, hlines)
     frame = draw_points(frame, points)
     edges = draw_points(edges, points)
 
-    return frame, edges, lines
+    return frame, edges, hlines, vlines, points
+
+def draw_line(frame, line, color=(0,0,255), thickness=2):
+    rho, theta = line
+    a = np.cos(theta)
+    b = np.sin(theta)
+    x0 = a * rho
+    y0 = b * rho
+    x1 = int(x0 + 3000 * (-b))
+    y1 = int(y0 + 3000 * (a))
+    x2 = int(x0 - 3000 * (-b))
+    y2 = int(y0 - 3000 * (a))
+    cv2.line(frame, (x1, y1), (x2, y2), color, thickness)
 
 def intersect_in(line1, line2):
     """
@@ -136,9 +137,9 @@ def get_lattice_points(vlines, hlines):
 
     return lattice_points
 
-def draw_points(frame, points):
+def draw_points(frame, points, color=(255, 0, 0), thickness=-1):
     for point in points:
-        cv2.circle(frame, point, 5, (255, 0, 0), -1)
+        cv2.circle(frame, point, 5, color, thickness)
     return frame
 
 def get_crop(corners):
@@ -177,13 +178,21 @@ if __name__ == "__main__":
             break
         cropped_frame = crop_frame(frame, vals)
         edges = frame.copy()
-        hough_frame, hough_edges, lines = houghlines(cropped_frame)
-        insert_crop(frame, hough_frame, vals)
-        insert_crop(edges, hough_edges, vals)
+        points = frame.copy()
+        
+        
+        hough_frame, hough_edges, hlines, vlines, points = houghlines(cropped_frame)
+        lines = np.concatenate((hlines, vlines), axis=0)
+        points_frame = np.zeros_like(cropped_frame)
+        points_frame = draw_points(points_frame, points, (0, 255, 0))
+        points_frame = insert_crop(frame.copy(), points_frame, vals)
+        points_frame = transform_frame(corners, points_frame)        
+        
         # frame = transform_frame(corners, frame)
         edges = transform_frame(corners, edges)
         cv2.imshow('frame', frame)
         cv2.imshow('Canny', edges)
+        cv2.imshow('Points', points_frame)
 
         if cv2.waitKey(50) & 0xFF == ord('q'):
             break
